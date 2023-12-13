@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+import { FunkoModule } from './funko/funko.module';
 
 @Module({
-  imports: [],
+  imports: [FunkoModule],
   controllers: [],
   providers: [],
 })
