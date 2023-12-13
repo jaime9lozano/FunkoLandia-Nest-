@@ -21,7 +21,7 @@ export class FunkoController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     return this.funkoService.findOne(+id);
   }
   @Post()
@@ -31,13 +31,13 @@ export class FunkoController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateFunkoDto: UpdateFunkoDto) {
+  update(@Param('id') id: number, @Body() updateFunkoDto: UpdateFunkoDto) {
     return this.funkoService.update(+id, updateFunkoDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: number) {
     return this.funkoService.remove(+id);
   }
 }

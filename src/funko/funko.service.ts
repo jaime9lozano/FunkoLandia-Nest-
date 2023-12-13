@@ -4,16 +4,16 @@ import { UpdateFunkoDto } from './dto/update-funko.dto';
 
 @Injectable()
 export class FunkoService {
-  create(createFunkoDto: CreateFunkoDto) {
-    return 'This action adds a new funko';
-  }
-
   findAll() {
     return `This action returns all funko`;
   }
 
   findOne(id: number) {
     return `This action returns a #${id} funko`;
+  }
+
+  create(createFunkoDto: CreateFunkoDto) {
+    return 'This action adds a new funko';
   }
 
   update(id: number, updateFunkoDto: UpdateFunkoDto) {
