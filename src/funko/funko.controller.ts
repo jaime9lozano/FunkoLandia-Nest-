@@ -3,10 +3,12 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
-  Delete, Put, HttpCode
-} from "@nestjs/common";
+  Delete,
+  Put,
+  HttpCode,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { FunkoService } from './funko.service';
 import { CreateFunkoDto } from './dto/create-funko.dto';
 import { UpdateFunkoDto } from './dto/update-funko.dto';
@@ -21,7 +23,7 @@ export class FunkoController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.funkoService.findOne(+id);
   }
   @Post()
@@ -31,13 +33,16 @@ export class FunkoController {
   }
 
   @Put(':id')
-  update(@Param('id') id: number, @Body() updateFunkoDto: UpdateFunkoDto) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateFunkoDto: UpdateFunkoDto,
+  ) {
     return this.funkoService.update(+id, updateFunkoDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id') id: number) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.funkoService.remove(+id);
   }
 }
