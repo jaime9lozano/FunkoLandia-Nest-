@@ -45,7 +45,6 @@ export class FunkoService {
         ...updateFunkoDto,
         fecha_act: new Date(),
       };
-
       this.funkos[index] = updatedFunko;
 
       return updatedFunko;

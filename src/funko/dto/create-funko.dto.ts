@@ -4,7 +4,6 @@ import {
   IsInt,
   IsNotEmpty,
   IsNumber,
-  IsPositive,
   IsString,
   IsUrl,
   Min,
