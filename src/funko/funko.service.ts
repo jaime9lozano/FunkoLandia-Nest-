@@ -1,17 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateFunkoDto } from './dto/create-funko.dto';
 import { UpdateFunkoDto } from './dto/update-funko.dto';
 import { Funko } from './entities/funko.entity';
 
 @Injectable()
 export class FunkoService {
+  logger: Logger = new Logger(FunkoService.name);
   funkos: Funko[] = [];
   nextID: number = 1;
   async findAll() {
+    this.logger.log('Buscando todos los funkos');
     return this.funkos;
   }
 
   async findOne(id: number) {
+    this.logger.log(`Buscando funko con id ${id}`);
     const foundFunko = this.funkos.find((funko) => funko.id === id);
     if (foundFunko) {
       return foundFunko;
@@ -21,6 +24,7 @@ export class FunkoService {
   }
 
   async create(createFunkoDto: CreateFunkoDto) {
+    this.logger.log('Creando un nuevo funko');
     const newFunko: Funko = {
       id: this.nextID,
       ...createFunkoDto,
@@ -37,6 +41,7 @@ export class FunkoService {
   }
 
   async update(id: number, updateFunkoDto: UpdateFunkoDto) {
+    this.logger.log(`Actualizando funko con id ${id}`);
     const index = this.funkos.findIndex((funko) => funko.id === id);
 
     if (index !== -1) {
@@ -54,6 +59,7 @@ export class FunkoService {
   }
 
   async remove(id: number) {
+    this.logger.log(`Eliminando funko con id ${id}`);
     const index = this.funkos.findIndex((funko) => funko.id === id);
     if (index !== -1) {
       this.funkos.splice(index, 1)[0];
