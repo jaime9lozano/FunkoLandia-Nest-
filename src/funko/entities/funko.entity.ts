@@ -12,5 +12,6 @@ export class Funko {
 export enum Categoria {
   DISNEY = 'disney',
   MARVEL = 'marvel',
+  SUPERHEROES = 'superheroes',
   OTROS = 'otros',
 }
