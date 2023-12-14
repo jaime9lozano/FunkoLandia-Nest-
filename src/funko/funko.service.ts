@@ -7,11 +7,11 @@ import { Funko } from './entities/funko.entity';
 export class FunkoService {
   funkos: Funko[] = [];
   nextID: number = 1;
-  findAll() {
+  async findAll() {
     return this.funkos;
   }
 
-  findOne(id: number) {
+  async findOne(id: number) {
     const foundFunko = this.funkos.find((funko) => funko.id === id);
     if (foundFunko) {
       return foundFunko;
@@ -20,7 +20,7 @@ export class FunkoService {
     }
   }
 
-  create(createFunkoDto: CreateFunkoDto) {
+  async create(createFunkoDto: CreateFunkoDto) {
     const newFunko: Funko = {
       id: this.nextID,
       ...createFunkoDto,
@@ -36,7 +36,7 @@ export class FunkoService {
     return newFunko;
   }
 
-  update(id: number, updateFunkoDto: UpdateFunkoDto) {
+  async update(id: number, updateFunkoDto: UpdateFunkoDto) {
     const index = this.funkos.findIndex((funko) => funko.id === id);
 
     if (index !== -1) {
@@ -54,7 +54,7 @@ export class FunkoService {
     }
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     const index = this.funkos.findIndex((funko) => funko.id === id);
     if (index !== -1) {
       this.funkos.splice(index, 1)[0];

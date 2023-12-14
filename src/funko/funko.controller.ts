@@ -18,31 +18,36 @@ export class FunkoController {
   constructor(private readonly funkoService: FunkoService) {}
 
   @Get()
-  findAll() {
+  async findAll() {
+    await this.funkoService.findAll();
     return this.funkoService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    await this.funkoService.findOne(id);
     return this.funkoService.findOne(+id);
   }
   @Post()
   @HttpCode(201)
-  create(@Body() createFunkoDto: CreateFunkoDto) {
+  async create(@Body() createFunkoDto: CreateFunkoDto) {
+    await this.funkoService.create(createFunkoDto);
     return this.funkoService.create(createFunkoDto);
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateFunkoDto: UpdateFunkoDto,
   ) {
+    await this.funkoService.update(+id, updateFunkoDto);
     return this.funkoService.update(+id, updateFunkoDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id', ParseIntPipe) id: number) {
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    await this.funkoService.remove(+id);
     return this.funkoService.remove(+id);
   }
 }

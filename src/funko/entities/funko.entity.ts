@@ -4,8 +4,13 @@ export class Funko {
   precio: number;
   cantidad: number;
   imagen: string;
-  categoria: string;
+  categoria: Categoria;
   is_deleted: boolean = false;
   fecha_cre: Date = new Date();
   fecha_act: Date = new Date();
+}
+export enum Categoria {
+  DISNEY = 'disney',
+  MARVEL = 'marvel',
+  OTROS = 'otros',
 }
