@@ -7,6 +7,7 @@ import {
   IsPositive,
   IsString,
   IsUrl,
+  Min,
 } from 'class-validator';
 
 export class CreateFunkoDto {
@@ -15,10 +16,10 @@ export class CreateFunkoDto {
   readonly nombre: string;
   @IsNotEmpty()
   @IsNumber()
-  @IsPositive()
+  @Min(0)
   readonly precio: number;
   @IsNotEmpty()
-  @IsPositive()
+  @Min(0)
   @IsInt()
   readonly cantidad: number;
   @IsUrl()
