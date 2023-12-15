@@ -10,21 +10,23 @@ import {
 } from 'class-validator';
 
 export class CreateFunkoDto {
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'El nombre debe ser un string' })
+  @IsNotEmpty({ message: 'El nombre no puede estar vacío' })
   readonly nombre: string;
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'El precio no puede estar vacío' })
   @IsNumber()
-  @Min(0)
+  @Min(0, { message: 'El precio no puede estar negativo' })
   readonly precio: number;
-  @IsNotEmpty()
-  @Min(0)
-  @IsInt()
+  @IsNotEmpty({ message: 'La cantidad no puede estar vacía' })
+  @Min(0, { message: 'La cantidad no puede estar negativo' })
+  @IsInt({ message: 'La cantidad debe ser un entero' })
   readonly cantidad: number;
   @IsUrl()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'La imagen no puede estar vacía' })
   readonly imagen: string;
-  @IsNotEmpty()
-  @IsEnum(Categoria)
+  @IsNotEmpty({ message: 'La categoria no puede estar vacía' })
+  @IsEnum(Categoria, {
+    message: 'La categoria debe ser disney,marvel,superheroes,otros',
+  })
   readonly categoria: Categoria;
 }
