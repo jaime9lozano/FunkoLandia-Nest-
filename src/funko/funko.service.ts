@@ -2,12 +2,13 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateFunkoDto } from './dto/create-funko.dto';
 import { UpdateFunkoDto } from './dto/update-funko.dto';
 import { Funko } from './entities/funko.entity';
+import { FunkoMapper } from './mapper/funko.mapper';
 
 @Injectable()
 export class FunkoService {
   logger: Logger = new Logger(FunkoService.name);
   funkos: Funko[] = [];
-  nextID: number = 1;
+  mappper: FunkoMapper = new FunkoMapper();
   async findAll() {
     this.logger.log('Buscando todos los funkos');
     return this.funkos;
@@ -25,17 +26,9 @@ export class FunkoService {
 
   async create(createFunkoDto: CreateFunkoDto) {
     this.logger.log('Creando un nuevo funko');
-    const newFunko: Funko = {
-      id: this.nextID,
-      ...createFunkoDto,
-      fecha_cre: new Date(),
-      fecha_act: new Date(),
-      is_deleted: false,
-    };
+    const newFunko: Funko = this.mappper.toNew(createFunkoDto);
 
     this.funkos.push(newFunko);
-
-    this.nextID++;
 
     return newFunko;
   }
@@ -45,11 +38,10 @@ export class FunkoService {
     const index = this.funkos.findIndex((funko) => funko.id === id);
 
     if (index !== -1) {
-      const updatedFunko = {
-        ...this.funkos[index],
-        ...updateFunkoDto,
-        fecha_act: new Date(),
-      };
+      const updatedFunko = this.mappper.toUpdated(
+        updateFunkoDto,
+        this.funkos[index],
+      );
       this.funkos[index] = updatedFunko;
 
       return updatedFunko;
