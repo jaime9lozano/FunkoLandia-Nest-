@@ -2,9 +2,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Funko } from '../../funko/entities/funko.entity';
 
 @Entity('categorias')
 export class Categoria {
@@ -29,4 +31,7 @@ export class Categoria {
 
   @Column({ name: 'is_deleted', type: 'boolean', default: false })
   isDeleted: boolean;
+
+  @OneToMany(() => Funko, (producto) => producto.categoria)
+  productos: Funko[];
 }

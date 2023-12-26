@@ -1,7 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateFunkoDto } from './create-funko.dto';
-import { IsBoolean, IsOptional } from 'class-validator';
-import { Categoria } from '../entities/funko.entity';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class UpdateFunkoDto extends PartialType(CreateFunkoDto) {
   @IsOptional()
@@ -13,7 +12,8 @@ export class UpdateFunkoDto extends PartialType(CreateFunkoDto) {
   @IsOptional()
   readonly imagen?: string;
   @IsOptional()
-  readonly categoria?: Categoria;
+  @IsString()
+  readonly categoria?: string;
   @IsOptional()
   @IsBoolean({ message: 'is_deleted tiene que ser un boolean' })
   readonly is_deleted: boolean = false;

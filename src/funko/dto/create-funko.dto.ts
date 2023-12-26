@@ -1,6 +1,4 @@
-import { Categoria } from '../entities/funko.entity';
 import {
-  IsEnum,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -24,9 +22,7 @@ export class CreateFunkoDto {
   @IsUrl()
   @IsNotEmpty({ message: 'La imagen no puede estar vacía' })
   readonly imagen: string;
-  @IsNotEmpty({ message: 'La categoria no puede estar vacía' })
-  @IsEnum(Categoria, {
-    message: 'La categoria debe ser disney,marvel,superheroes,otros',
-  })
-  readonly categoria: Categoria;
+  @IsString()
+  @IsNotEmpty()
+  readonly categoria: string;
 }
