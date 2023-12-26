@@ -3,12 +3,13 @@ import { CreateFunkoDto } from './dto/create-funko.dto';
 import { UpdateFunkoDto } from './dto/update-funko.dto';
 import { Funko } from './entities/funko.entity';
 import { FunkoMapper } from './mapper/funko.mapper';
+import { Categoria } from '../categoria/entities/categoria.entity';
 
 @Injectable()
 export class FunkoService {
   logger: Logger = new Logger(FunkoService.name);
   funkos: Funko[] = [];
-  mappper: FunkoMapper = new FunkoMapper();
+  mapper: FunkoMapper = new FunkoMapper();
   async findAll() {
     this.logger.log('Buscando todos los funkos');
     return this.funkos;
@@ -26,7 +27,7 @@ export class FunkoService {
 
   async create(createFunkoDto: CreateFunkoDto) {
     this.logger.log('Creando un nuevo funko');
-    const newFunko: Funko = this.mappper.toNew(createFunkoDto);
+    const newFunko = this.mapper.toFunko(createFunkoDto, new Categoria());
 
     this.funkos.push(newFunko);
 
@@ -38,9 +39,9 @@ export class FunkoService {
     const index = this.funkos.findIndex((funko) => funko.id === id);
 
     if (index !== -1) {
-      const updatedFunko = this.mappper.toUpdated(
-        updateFunkoDto,
-        this.funkos[index],
+      const updatedFunko = this.mapper.toFunko(
+        new CreateFunkoDto(),
+        new Categoria(),
       );
       this.funkos[index] = updatedFunko;
 

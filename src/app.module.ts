@@ -5,8 +5,6 @@ import { CategoriaModule } from './categoria/categoria.module';
 
 @Module({
   imports: [
-    FunkoModule,
-    CategoriaModule,
     // Configuración de la conexión a la base de datos a PostgreSQL
     TypeOrmModule.forRoot({
       type: 'postgres', // Tipo de base de datos
@@ -18,6 +16,8 @@ import { CategoriaModule } from './categoria/categoria.module';
       entities: [`${__dirname}/**/*.entity{.ts,.js}`], // Entidades de la base de datos (buscar archivos con extensión .entity.ts o .entity.js)
       synchronize: true, // Sincronizar la base de datos
     }),
+    FunkoModule,
+    CategoriaModule,
   ],
   controllers: [],
   providers: [],

@@ -8,6 +8,7 @@ import { UpdateCategoriaDto } from '../dto/update-categoria.dto';
 export class CategoriasMapper {
   toCategoriaNew(createCategoriaDto: CreateCategoriaDto): Categoria {
     return {
+      productos: [],
       id: uuidv4(),
       ...createCategoriaDto,
       created_at: new Date(),
