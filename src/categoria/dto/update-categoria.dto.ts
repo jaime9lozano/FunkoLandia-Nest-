@@ -4,7 +4,7 @@ import { IsBoolean, IsOptional } from 'class-validator';
 
 export class UpdateCategoriaDto extends PartialType(CreateCategoriaDto) {
   @IsOptional()
-  nombre?: string;
+  categoria?: string;
 
   @IsBoolean()
   @IsOptional()

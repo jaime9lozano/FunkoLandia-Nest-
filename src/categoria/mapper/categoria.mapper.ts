@@ -1,17 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { Categoria } from '../entities/categoria.entity';
 import { CreateCategoriaDto } from '../dto/create-categoria.dto';
+import { v4 as uuidv4 } from 'uuid';
+import { UpdateCategoriaDto } from '../dto/update-categoria.dto';
 
 @Injectable()
 export class CategoriasMapper {
-  toCategoria(createCategoriaDto: CreateCategoriaDto): Categoria {
-    const categoria: Categoria = {
-      id: uuid.v4(),
+  toCategoriaNew(createCategoriaDto: CreateCategoriaDto): Categoria {
+    return {
+      id: uuidv4(),
       ...createCategoriaDto,
       created_at: new Date(),
       updated_at: new Date(),
       isDeleted: false,
     };
-    return categoria;
+  }
+  toCategoriaUpdate(
+    updateCategoriaDto: UpdateCategoriaDto,
+    updateCategoria: Categoria,
+  ): Categoria {
+    return {
+      ...updateCategoria,
+      ...updateCategoriaDto,
+      updated_at: new Date(),
+    };
   }
 }
