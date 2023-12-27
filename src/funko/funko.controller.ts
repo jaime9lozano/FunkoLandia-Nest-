@@ -28,7 +28,7 @@ export class FunkoController {
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     this.logger.log(`Buscando funko con id ${id}`);
-    return await this.funkoService.findOne(+id);
+    return await this.funkoService.findOne(id);
   }
   @Post()
   @HttpCode(201)
@@ -43,13 +43,13 @@ export class FunkoController {
     @Body() updateFunkoDto: UpdateFunkoDto,
   ) {
     this.logger.log(`Actualizando funko con id ${id}`);
-    return await this.funkoService.update(+id, updateFunkoDto);
+    return await this.funkoService.update(id, updateFunkoDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
   async remove(@Param('id', ParseIntPipe) id: number) {
     this.logger.log(`Eliminando funko con id ${id}`);
-    return await this.funkoService.remove(+id);
+    return await this.funkoService.removeSoft(id);
   }
 }
