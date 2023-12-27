@@ -6,7 +6,7 @@ export class UpdateCategoriaDto extends PartialType(CreateCategoriaDto) {
   @IsOptional()
   categoria?: string;
 
-  @IsBoolean()
+  @IsBoolean({ message: 'isDeleted debe ser un booleano' })
   @IsOptional()
-  isDeleted?: boolean;
+  is_deleted?: boolean;
 }

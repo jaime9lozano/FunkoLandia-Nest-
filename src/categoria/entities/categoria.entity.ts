@@ -30,7 +30,7 @@ export class Categoria {
   updated_at: Date;
 
   @Column({ name: 'is_deleted', type: 'boolean', default: false })
-  isDeleted: boolean;
+  is_deleted: boolean;
 
   @OneToMany(() => Funko, (producto) => producto.categoria)
   productos: Funko[];

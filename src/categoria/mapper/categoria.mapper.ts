@@ -13,7 +13,7 @@ export class CategoriasMapper {
       ...createCategoriaDto,
       created_at: new Date(),
       updated_at: new Date(),
-      isDeleted: false,
+      is_deleted: false,
     };
   }
   toCategoriaUpdate(

@@ -68,7 +68,7 @@ export class CategoriaService {
     return await this.categoriaRepository.save({
       ...categoriaToRemove,
       updatedAt: new Date(),
-      isDeleted: true,
+      is_deleted: true,
     });
   }
   public async exists(nombreCategoria: string): Promise<Categoria> {
