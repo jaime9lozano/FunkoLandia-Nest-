@@ -53,10 +53,10 @@ export class CategoriaService {
         );
       }
     }
-    return this.categoriasMapper.toCategoriaUpdate(
-      updateCategoriaDto,
-      categoryToUpdated,
-    );
+    return this.categoriaRepository.save({
+      ...categoryToUpdated,
+      ...updateCategoriaDto,
+    });
   }
 
   async remove(id: string) {
