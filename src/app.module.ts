@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoriaModule } from './categoria/categoria.module';
 import { StorageModule } from './storage/storage.module';
 import { NotificationsModule } from './websocket/notification.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { NotificationsModule } from './websocket/notification.module';
       entities: [`${__dirname}/**/*.entity{.ts,.js}`], // Entidades de la base de datos (buscar archivos con extensión .entity.ts o .entity.js)
       synchronize: true, // Sincronizar la base de datos
     }),
+    CacheModule.register(),
     FunkoModule,
     CategoriaModule,
     StorageModule,

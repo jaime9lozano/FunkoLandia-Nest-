@@ -25,13 +25,17 @@ import { parse } from 'ts-jest';
 import { extname } from 'path';
 import { diskStorage } from 'multer';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 
 @Controller('funkos')
+@UseInterceptors(CacheInterceptor)
 export class FunkoController {
   logger: Logger = new Logger(FunkoController.name);
   constructor(private readonly funkoService: FunkoService) {}
 
   @Get()
+  @CacheKey('all_categories')
+  @CacheTTL(30)
   async findAll() {
     this.logger.log('Buscando todos los funkos');
     return await this.funkoService.findAll();
