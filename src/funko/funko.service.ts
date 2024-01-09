@@ -4,6 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { CreateFunkoDto } from './dto/create-funko.dto';
 import { UpdateFunkoDto } from './dto/update-funko.dto';
 import { Funko } from './entities/funko.entity';
@@ -11,6 +12,7 @@ import { FunkoMapper } from './mapper/funko.mapper';
 import { Categoria } from '../categoria/entities/categoria.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class FunkoService {
@@ -21,6 +23,7 @@ export class FunkoService {
     @InjectRepository(Categoria)
     private readonly categoriaRepository: Repository<Categoria>,
     private readonly mapper: FunkoMapper,
+    private readonly storageService: StorageService,
   ) {}
   async findAll() {
     this.logger.log('Buscando todos los funkos');
@@ -78,7 +81,7 @@ export class FunkoService {
   }
 
   async removeSoft(id: number) {
-    this.logger.log(`Remove producto by id:${id}`);
+    this.logger.log(`Eliminando funko con id:${id}`);
     const funkoToRemove = await this.exists(id);
     funkoToRemove.is_deleted = true;
     const funkoRemoved = await this.funkoRepository.save(funkoToRemove);
@@ -102,9 +105,57 @@ export class FunkoService {
   public async exists(id: number): Promise<Funko> {
     const funko = await this.funkoRepository.findOneBy({ id });
     if (!funko) {
-      this.logger.log(`Producto con id ${id} no encontrado`);
-      throw new NotFoundException(`Producto con id ${id} no encontrado`);
+      this.logger.log(`Funko con id ${id} no encontrado`);
+      throw new NotFoundException(`Funko con id ${id} no encontrado`);
     }
     return funko;
+  }
+  public async updateImage(
+    id: number,
+    file: Express.Multer.File,
+    req: Request,
+    withUrl: boolean = true,
+  ) {
+    this.logger.log(`Actualizar imagen del funko con id:${id}`);
+    const funkoToUpdate = await this.exists(id);
+
+    // Borramos su imagen si es distinta a la imagen por defecto
+    if (funkoToUpdate.imagen !== Funko.IMAGE_DEFAULT) {
+      this.logger.log(`Borrando imagen ${funkoToUpdate.imagen}`);
+      let imagePath = funkoToUpdate.imagen;
+      if (withUrl) {
+        imagePath = this.storageService.getFileNameWithouUrl(
+          funkoToUpdate.imagen,
+        );
+      }
+      try {
+        this.storageService.removeFile(imagePath);
+      } catch (error) {
+        this.logger.error(error); // No lanzamos nada si no existe!!
+      }
+    }
+
+    if (!file) {
+      throw new BadRequestException('Fichero no encontrado.');
+    }
+
+    let filePath: string;
+
+    if (withUrl) {
+      this.logger.log(`Generando url para ${file.filename}`);
+      // Construimos la url del fichero, que será la url de la API + el nombre del fichero
+      const apiVersion = process.env.API_VERSION
+        ? `/${process.env.API_VERSION}`
+        : '';
+      filePath = `${req.protocol}://${req.get('host')}${apiVersion}/storage/${
+        file.filename
+      }`;
+    } else {
+      filePath = file.filename;
+    }
+
+    funkoToUpdate.imagen = filePath;
+    const funkoUpdated = await this.funkoRepository.save(funkoToUpdate);
+    return this.mapper.toResponse(funkoUpdated);
   }
 }
