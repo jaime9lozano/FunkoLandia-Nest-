@@ -13,6 +13,12 @@ import { Categoria } from '../categoria/entities/categoria.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { StorageService } from '../storage/storage.service';
+import { FunkoNotificationsGateway } from '../websocket/funko-notification.gateway';
+import {
+  Notificacion,
+  NotificacionTipo,
+} from '../websocket/models/notificacion.model';
+import { ResponseFunko } from './dto/response-funko.dto';
 
 @Injectable()
 export class FunkoService {
@@ -24,6 +30,7 @@ export class FunkoService {
     private readonly categoriaRepository: Repository<Categoria>,
     private readonly mapper: FunkoMapper,
     private readonly storageService: StorageService,
+    private readonly funkoNotificationGateway: FunkoNotificationsGateway,
   ) {}
   async findAll() {
     this.logger.log('Buscando todos los funkos');
@@ -51,7 +58,9 @@ export class FunkoService {
     const categoria = await this.checkCategoria(createFunkoDto.categoria);
     const funkoToCreate = this.mapper.toFunko(createFunkoDto, categoria);
     const funkoCreated = await this.funkoRepository.save(funkoToCreate);
-    return this.mapper.toResponse(funkoCreated);
+    const dto = this.mapper.toResponse(funkoCreated);
+    this.onChange(NotificacionTipo.CREATE, dto);
+    return dto;
   }
 
   async update(id: number, updateFunkoDto: UpdateFunkoDto) {
@@ -70,14 +79,18 @@ export class FunkoService {
       ...updateFunkoDto,
       categoria,
     });
-    return this.mapper.toResponse(productoUpdated);
+    const dto = this.mapper.toResponse(productoUpdated);
+    this.onChange(NotificacionTipo.UPDATE, dto);
+    return dto;
   }
 
   async remove(id: number) {
     this.logger.log(`Eliminando funko con id ${id}`);
     const funkoToRemove = await this.exists(id);
     const funkoRemoved = await this.funkoRepository.remove(funkoToRemove);
-    return this.mapper.toResponse(funkoRemoved);
+    const dto = this.mapper.toResponse(funkoRemoved);
+    this.onChange(NotificacionTipo.DELETE, dto);
+    return dto;
   }
 
   async removeSoft(id: number) {
@@ -85,7 +98,9 @@ export class FunkoService {
     const funkoToRemove = await this.exists(id);
     funkoToRemove.is_deleted = true;
     const funkoRemoved = await this.funkoRepository.save(funkoToRemove);
-    return this.mapper.toResponse(funkoRemoved);
+    const dto = this.mapper.toResponse(funkoRemoved);
+    this.onChange(NotificacionTipo.DELETE, dto);
+    return dto;
   }
   public async checkCategoria(nombreCategoria: string): Promise<Categoria> {
     const categoriaU = await this.categoriaRepository
@@ -157,5 +172,15 @@ export class FunkoService {
     funkoToUpdate.imagen = filePath;
     const funkoUpdated = await this.funkoRepository.save(funkoToUpdate);
     return this.mapper.toResponse(funkoUpdated);
+  }
+  private onChange(tipo: NotificacionTipo, data: ResponseFunko) {
+    const notificacion = new Notificacion<ResponseFunko>(
+      'FUNKOS',
+      tipo,
+      data,
+      new Date(),
+    );
+    // Lo enviamos
+    this.funkoNotificationGateway.sendMessage(notificacion);
   }
 }

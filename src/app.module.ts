@@ -3,6 +3,7 @@ import { FunkoModule } from './funko/funko.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoriaModule } from './categoria/categoria.module';
 import { StorageModule } from './storage/storage.module';
+import { NotificationsModule } from './websocket/notification.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { StorageModule } from './storage/storage.module';
     FunkoModule,
     CategoriaModule,
     StorageModule,
+    NotificationsModule,
   ],
   controllers: [],
   providers: [],

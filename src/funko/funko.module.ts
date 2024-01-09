@@ -6,12 +6,14 @@ import { Funko } from './entities/funko.entity';
 import { Categoria } from '../categoria/entities/categoria.entity';
 import { FunkoMapper } from './mapper/funko.mapper';
 import { StorageModule } from '../storage/storage.module';
+import { NotificationsModule } from '../websocket/notification.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Funko]),
     TypeOrmModule.forFeature([Categoria]),
     StorageModule,
+    NotificationsModule,
   ],
   controllers: [FunkoController],
   providers: [FunkoService, FunkoMapper],
