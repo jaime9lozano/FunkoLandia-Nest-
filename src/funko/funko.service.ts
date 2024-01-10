@@ -109,6 +109,10 @@ export class FunkoService {
   async remove(id: number) {
     this.logger.log(`Eliminando funko con id ${id}`);
     const funkoToRemove = await this.exists(id);
+    if (funkoToRemove.imagen !== Funko.IMAGE_DEFAULT) {
+      this.logger.log(`Borrando imagen ${funkoToRemove.imagen}`);
+      this.storageService.removeFile(funkoToRemove.imagen);
+    }
     const funkoRemoved = await this.funkoRepository.remove(funkoToRemove);
     const dto = this.mapper.toResponse(funkoRemoved);
     this.onChange(NotificacionTipo.DELETE, dto);
