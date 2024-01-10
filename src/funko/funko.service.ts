@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -19,6 +20,8 @@ import {
   NotificacionTipo,
 } from '../websocket/models/notificacion.model';
 import { ResponseFunko } from './dto/response-funko.dto';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class FunkoService {
@@ -31,15 +34,27 @@ export class FunkoService {
     private readonly mapper: FunkoMapper,
     private readonly storageService: StorageService,
     private readonly funkoNotificationGateway: FunkoNotificationsGateway,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
   async findAll() {
     this.logger.log('Buscando todos los funkos');
-    return this.funkoRepository.find();
+    const cache: Funko[] = await this.cacheManager.get('all_funkos');
+    if (cache) {
+      this.logger.log('Buscando todos los funkos en cache');
+      return cache;
+    }
+    const res = this.funkoRepository.find();
+    await this.cacheManager.set('all_funkos', res, 60);
+    return res;
   }
 
   async findOne(id: number) {
     this.logger.log(`Buscando funko con id ${id}`);
-
+    const cache: ResponseFunko = await this.cacheManager.get(`funko_${id}`);
+    if (cache) {
+      this.logger.log(`Funko con id ${id} encontrado en cache`);
+      return cache;
+    }
     const funkoToFind = await this.funkoRepository
       .createQueryBuilder('funko')
       .leftJoinAndSelect('funko.categoria', 'categoria')
@@ -50,7 +65,9 @@ export class FunkoService {
       throw new NotFoundException(`Funko con id ${id} no encontrado`);
     }
 
-    return this.mapper.toResponse(funkoToFind);
+    const res = this.mapper.toResponse(funkoToFind);
+    await this.cacheManager.set(`funko_${id}`, res, 60);
+    return res;
   }
 
   async create(createFunkoDto: CreateFunkoDto) {
@@ -60,6 +77,7 @@ export class FunkoService {
     const funkoCreated = await this.funkoRepository.save(funkoToCreate);
     const dto = this.mapper.toResponse(funkoCreated);
     this.onChange(NotificacionTipo.CREATE, dto);
+    await this.invalidateKey('all_funkos');
     return dto;
   }
 
@@ -83,6 +101,8 @@ export class FunkoService {
     });
     const dto = this.mapper.toResponse(productoUpdated);
     this.onChange(NotificacionTipo.UPDATE, dto);
+    await this.invalidateKey('all_funkos');
+    await this.invalidateKey(`funko_${id}`);
     return dto;
   }
 
@@ -92,6 +112,8 @@ export class FunkoService {
     const funkoRemoved = await this.funkoRepository.remove(funkoToRemove);
     const dto = this.mapper.toResponse(funkoRemoved);
     this.onChange(NotificacionTipo.DELETE, dto);
+    await this.invalidateKey('all_funkos');
+    await this.invalidateKey(`funko_${id}`);
     return dto;
   }
 
@@ -102,6 +124,8 @@ export class FunkoService {
     const funkoRemoved = await this.funkoRepository.save(funkoToRemove);
     const dto = this.mapper.toResponse(funkoRemoved);
     this.onChange(NotificacionTipo.DELETE, dto);
+    await this.invalidateKey('all_funkos');
+    await this.invalidateKey(`funko_${id}`);
     return dto;
   }
   public async checkCategoria(nombreCategoria: string): Promise<Categoria> {
@@ -184,5 +208,8 @@ export class FunkoService {
     );
     // Lo enviamos
     this.funkoNotificationGateway.sendMessage(notificacion);
+  }
+  public async invalidateKey(key: string) {
+    await this.cacheManager.del(key);
   }
 }

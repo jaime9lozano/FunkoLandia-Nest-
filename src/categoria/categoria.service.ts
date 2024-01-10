@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,6 +10,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Categoria } from './entities/categoria.entity';
 import { Repository } from 'typeorm';
 import { CategoriasMapper } from './mapper/categoria.mapper';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class CategoriaService {
@@ -16,7 +19,32 @@ export class CategoriaService {
     @InjectRepository(Categoria)
     private readonly categoriaRepository: Repository<Categoria>,
     private readonly categoriasMapper: CategoriasMapper,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
+  async findAll() {
+    const cache: Categoria[] = await this.cacheManager.get('all_categorias');
+    if (cache) {
+      return cache;
+    }
+    const res = this.categoriaRepository.find();
+    await this.cacheManager.set('all_categorias', res, 60);
+    return res;
+  }
+
+  async findOne(id: string): Promise<Categoria> {
+    const cache: Categoria = await this.cacheManager.get(`categoria_${id}`);
+    if (cache) {
+      return cache;
+    }
+    const categoriaToFound = await this.categoriaRepository.findOneBy({ id });
+    if (!categoriaToFound) {
+      throw new NotFoundException(`Categoria con id ${id} no encontrada`);
+    } else {
+      await this.cacheManager.set(`categoria_${id}`, categoriaToFound, 60);
+      return categoriaToFound;
+    }
+  }
+
   async create(createCategoriaDto: CreateCategoriaDto) {
     const categoriaToCreate =
       this.categoriasMapper.toCategoriaNew(createCategoriaDto);
@@ -26,23 +54,11 @@ export class CategoriaService {
         `La categoria con nombre ${categoria.categoria} ya existe`,
       );
     } else {
-      return this.categoriaRepository.save(categoriaToCreate);
+      const res = this.categoriaRepository.save(categoriaToCreate);
+      await this.invalidateKey('all_categorias');
+      return res;
     }
   }
-
-  async findAll() {
-    return this.categoriaRepository.find();
-  }
-
-  async findOne(id: string): Promise<Categoria> {
-    const categoriaToFound = await this.categoriaRepository.findOneBy({ id });
-    if (!categoriaToFound) {
-      throw new NotFoundException(`Categoria con id ${id} no encontrada`);
-    } else {
-      return categoriaToFound;
-    }
-  }
-
   async update(id: string, updateCategoriaDto: UpdateCategoriaDto) {
     const categoryToUpdated = await this.findOne(id);
     if (updateCategoriaDto.categoria) {
@@ -53,23 +69,32 @@ export class CategoriaService {
         );
       }
     }
-    return this.categoriaRepository.save({
+    const res = this.categoriaRepository.save({
       ...categoryToUpdated,
       ...updateCategoriaDto,
     });
+    await this.invalidateKey(`categoria_${id}`);
+    await this.invalidateKey('all_categorias');
+    return res;
   }
 
   async remove(id: string) {
     const categoriaToRemove = await this.findOne(id);
-    return await this.categoriaRepository.remove(categoriaToRemove);
+    const res = await this.categoriaRepository.remove(categoriaToRemove);
+    await this.invalidateKey(`categoria_${id}`);
+    await this.invalidateKey('all_categorias');
+    return res;
   }
   async removeSoft(id: string) {
     const categoriaToRemove = await this.findOne(id);
-    return await this.categoriaRepository.save({
+    const res = await this.categoriaRepository.save({
       ...categoriaToRemove,
       updatedAt: new Date(),
       is_deleted: true,
     });
+    await this.invalidateKey(`categoria_${id}`);
+    await this.invalidateKey('all_categorias');
+    return res;
   }
   public async exists(nombreCategoria: string): Promise<Categoria> {
     const categoriaU = await this.categoriaRepository
@@ -79,5 +104,8 @@ export class CategoriaService {
       })
       .getOne();
     return categoriaU;
+  }
+  public async invalidateKey(key: string) {
+    await this.cacheManager.del(key);
   }
 }

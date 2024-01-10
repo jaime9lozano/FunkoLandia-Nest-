@@ -7,6 +7,7 @@ import { UpdateCategoriaDto } from '../dto/update-categoria.dto';
 @Injectable()
 export class CategoriasMapper {
   toCategoriaNew(createCategoriaDto: CreateCategoriaDto): Categoria {
+    createCategoriaDto.categoria = createCategoriaDto.categoria.toLowerCase();
     return {
       productos: [],
       id: uuidv4(),
@@ -20,6 +21,7 @@ export class CategoriasMapper {
     updateCategoriaDto: UpdateCategoriaDto,
     updateCategoria: Categoria,
   ): Categoria {
+    updateCategoria.categoria = updateCategoria.categoria.toLowerCase();
     return {
       ...updateCategoria,
       ...updateCategoriaDto,
