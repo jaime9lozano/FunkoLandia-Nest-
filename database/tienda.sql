@@ -6,7 +6,7 @@ CREATE TABLE "public"."categorias" (
                                        "id" uuid NOT NULL,
                                        "categoria" character varying(255) NOT NULL,
                                        "created_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                                       "updated_at" timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+                                       "updated_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
                                        "is_deleted" boolean DEFAULT false NOT NULL,
                                        CONSTRAINT "categorias_pkey" PRIMARY KEY ("id"),
                                        CONSTRAINT "categorias_categoria_key" UNIQUE ("categoria")
@@ -20,7 +20,7 @@ CREATE TABLE "public"."funkos" (
                                    "imagen" text DEFAULT 'https://via.placeholder.com/150' NOT NULL,
                                    "is_deleted" boolean DEFAULT false NOT NULL,
                                    "created_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                                   "updated_at" timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+                                   "updated_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
                                    "categoria_id" uuid,
                                    CONSTRAINT "funkos_pkey" PRIMARY KEY ("id"),
                                    CONSTRAINT "funkos_categoria_id_fkey" FOREIGN KEY ("categoria_id") REFERENCES "public"."categorias" ("id") ON DELETE CASCADE

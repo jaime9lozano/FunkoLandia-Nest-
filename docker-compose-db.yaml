@@ -23,7 +23,7 @@ services:
     container_name: tienda-db_adminer-postgres-db
     image: adminer
     restart: always
-    env_file: .env.prod
+    env_file: .env
     ports:
       - 8080:8080
     depends_on:
