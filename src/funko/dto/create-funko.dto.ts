@@ -10,7 +10,7 @@ import {
 export class CreateFunkoDto {
   @IsString({ message: 'El nombre debe ser un string' })
   @IsNotEmpty({ message: 'El nombre no puede estar vacío' })
-  readonly nombre: string;
+  nombre: string;
   @IsNotEmpty({ message: 'El precio no puede estar vacío' })
   @IsNumber()
   @Min(0, { message: 'El precio no puede estar negativo' })
@@ -24,5 +24,5 @@ export class CreateFunkoDto {
   readonly imagen: string;
   @IsString()
   @IsNotEmpty()
-  readonly categoria: string;
+  categoria: string;
 }

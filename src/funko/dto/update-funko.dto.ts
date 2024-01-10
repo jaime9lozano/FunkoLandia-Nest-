@@ -4,7 +4,7 @@ import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class UpdateFunkoDto extends PartialType(CreateFunkoDto) {
   @IsOptional()
-  readonly nombre?: string;
+  nombre?: string;
   @IsOptional()
   readonly precio?: number;
   @IsOptional()
@@ -13,7 +13,7 @@ export class UpdateFunkoDto extends PartialType(CreateFunkoDto) {
   readonly imagen?: string;
   @IsOptional()
   @IsString()
-  readonly categoria?: string;
+  categoria?: string;
   @IsOptional()
   @IsBoolean({ message: 'is_deleted tiene que ser un boolean' })
   readonly is_deleted: boolean = false;

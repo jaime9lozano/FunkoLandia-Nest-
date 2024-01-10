@@ -64,6 +64,8 @@ export class FunkoService {
   }
 
   async update(id: number, updateFunkoDto: UpdateFunkoDto) {
+    updateFunkoDto.categoria = updateFunkoDto.categoria.toLowerCase();
+    updateFunkoDto.nombre = updateFunkoDto.nombre.toLowerCase();
     this.logger.log(`Actualizando funko con id ${id}`);
     const funkoToUpdate = await this.findOne(id);
     let categoria: Categoria;
