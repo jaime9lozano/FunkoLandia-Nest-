@@ -15,8 +15,6 @@ export class FunkoMapper {
     return funkoEntity;
   }
   toResponse(funko: Funko): ResponseFunko {
-    funko.categoria.categoria = funko.categoria.categoria.toLowerCase();
-    funko.nombre = funko.nombre.toLowerCase();
     const dto = plainToClass(ResponseFunko, funko);
     if (funko.categoria && funko.categoria.categoria) {
       dto.categoria = funko.categoria.categoria;
