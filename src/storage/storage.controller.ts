@@ -53,7 +53,7 @@ export class StorageController {
     const apiVersion = process.env.API_VERSION
       ? `/${process.env.API_VERSION}`
       : '';
-    const url = `${req.protocol}://${req.get('host')}${apiVersion}/storage/${
+    const url = `${req.protocol}://${req.get('host')}/${apiVersion}/storage/${
       file.filename
     }`;
     console.log(file);

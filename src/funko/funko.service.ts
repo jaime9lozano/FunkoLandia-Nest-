@@ -190,7 +190,7 @@ export class FunkoService {
       const apiVersion = process.env.API_VERSION
         ? `/${process.env.API_VERSION}`
         : '';
-      filePath = `${req.protocol}://${req.get('host')}${apiVersion}/storage/${
+      filePath = `${req.protocol}://${req.get('host')}/v1/storage/${
         file.filename
       }`;
     } else {
