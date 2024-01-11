@@ -2,11 +2,12 @@ import {
   BadRequestException,
   CanActivate,
   ExecutionContext,
+  Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { FunkoService } from '../funko.service';
-
+@Injectable()
 export class funkoExistGuard implements CanActivate {
   constructor(private readonly funkoService: FunkoService) {}
   canActivate(
