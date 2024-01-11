@@ -9,6 +9,7 @@ import { ResponseFunko } from '../dto/response-funko.dto';
 export class FunkoMapper {
   toFunko(createProductoDto: CreateFunkoDto, categoria: Categoria): Funko {
     createProductoDto.nombre = createProductoDto.nombre.toLowerCase();
+    createProductoDto.categoria = createProductoDto.categoria.toLowerCase();
     categoria.categoria = categoria.categoria.toLowerCase();
     const funkoEntity = plainToClass(Funko, createProductoDto);
     funkoEntity.categoria = categoria;
