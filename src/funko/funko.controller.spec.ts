@@ -2,12 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { FunkoController } from './funko.controller';
 import { FunkoService } from './funko.service';
 import { CacheModule } from '@nestjs/cache-manager';
-import { Funko } from './entities/funko.entity';
 import { ResponseFunko } from './dto/response-funko.dto';
 import { NotFoundException } from '@nestjs/common';
 import { CreateFunkoDto } from './dto/create-funko.dto';
 import { UpdateFunkoDto } from './dto/update-funko.dto';
 import { Request } from 'express';
+import { Paginated } from 'nestjs-paginate';
 
 describe('FunkoController', () => {
   let controller: FunkoController;
@@ -38,12 +38,39 @@ describe('FunkoController', () => {
   });
   describe('findAll', () => {
     it('Devuelve FindAll', async () => {
-      const testFunkos: Funko[] = [];
-      jest.spyOn(service, 'findAll').mockResolvedValue(testFunkos);
-      const result = await controller.findAll();
+      const paginateOptions = {
+        page: 1,
+        limit: 10,
+        path: 'funkos',
+      };
 
+      const testProductos = {
+        data: [],
+        meta: {
+          itemsPerPage: 10,
+          totalItems: 1,
+          currentPage: 1,
+          totalPages: 1,
+        },
+        links: {
+          current: 'funkos?page=1&limit=10&sortBy=nombre:ASC',
+        },
+      } as Paginated<ResponseFunko>;
+
+      jest.spyOn(service, 'findAll').mockResolvedValue(testProductos);
+      const result: any = await controller.findAll(paginateOptions);
+
+      // console.log(result)
+      expect(result.meta.itemsPerPage).toEqual(paginateOptions.limit);
+      // Expect the result to have the correct currentPage
+      expect(result.meta.currentPage).toEqual(paginateOptions.page);
+      // Expect the result to have the correct totalPages
+      expect(result.meta.totalPages).toEqual(1); // You may need to adjust this value based on your test case
+      // Expect the result to have the correct current link
+      expect(result.links.current).toEqual(
+        `funkos?page=${paginateOptions.page}&limit=${paginateOptions.limit}&sortBy=nombre:ASC`,
+      );
       expect(service.findAll).toHaveBeenCalled();
-      expect(result).toBeInstanceOf(Array);
     });
   });
   describe('findOne', () => {

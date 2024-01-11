@@ -85,11 +85,22 @@ describe('ProductosController (e2e)', () => {
     await app.close();
   });
   describe('GET /funkos', () => {
-    it('Devuelve FindAll', async () => {
+    it('Devuelve FindAll Page', async () => {
       mockFunkosService.findAll.mockResolvedValue([myFunko]);
 
       const { body } = await request(app.getHttpServer())
         .get(myEndpoint)
+        .expect(200);
+      expect(() => {
+        expect(body).toEqual([myFunko]);
+        expect(mockFunkosService.findAll).toHaveBeenCalled();
+      });
+    });
+    it('Devuelve FindAll Page con query', async () => {
+      mockFunkosService.findAll.mockResolvedValue([myFunko]);
+
+      const { body } = await request(app.getHttpServer())
+        .get(`${myEndpoint}?page=1&limit=10`)
         .expect(200);
       expect(() => {
         expect(body).toEqual([myFunko]);
