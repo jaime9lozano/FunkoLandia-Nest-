@@ -87,7 +87,7 @@ export class CategoriaService {
   }
   async removeSoft(id: string) {
     const categoriaToRemove = await this.findOne(id);
-    const res = await this.categoriaRepository.save({
+    const res: Categoria = await this.categoriaRepository.save({
       ...categoriaToRemove,
       updatedAt: new Date(),
       is_deleted: true,
@@ -105,7 +105,10 @@ export class CategoriaService {
       .getOne();
     return categoriaU;
   }
-  public async invalidateKey(key: string) {
-    await this.cacheManager.del(key);
+  async invalidateKey(keyPattern: string): Promise<void> {
+    const cacheKeys = await this.cacheManager.store.keys();
+    const keysToDelete = cacheKeys.filter((key) => key.startsWith(keyPattern));
+    const promises = keysToDelete.map((key) => this.cacheManager.del(key));
+    await Promise.all(promises);
   }
 }

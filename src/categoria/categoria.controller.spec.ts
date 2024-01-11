@@ -1,20 +1,126 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CategoriaController } from './categoria.controller';
 import { CategoriaService } from './categoria.service';
+import { CacheModule } from '@nestjs/cache-manager';
+import { Funko } from '../funko/entities/funko.entity';
+import { Categoria } from './entities/categoria.entity';
+import { NotFoundException } from '@nestjs/common';
+import { CreateCategoriaDto } from './dto/create-categoria.dto';
+import { UpdateCategoriaDto } from './dto/update-categoria.dto';
 
 describe('CategoriaController', () => {
   let controller: CategoriaController;
+  let service: CategoriaService;
+  const mockCategoriaService = {
+    findAll: jest.fn(),
+    findOne: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    removeSoft: jest.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [CacheModule.register()], // importamos el módulo de caché, lo necesita el controlador (interceptores y anotaciones)
       controllers: [CategoriaController],
-      providers: [CategoriaService],
+      providers: [
+        { provide: CategoriaService, useValue: mockCategoriaService },
+      ],
     }).compile();
 
     controller = module.get<CategoriaController>(CategoriaController);
+    service = module.get<CategoriaService>(CategoriaService);
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+  describe('findAll', () => {
+    const mockCategories = [
+      {
+        id: '123e4567-e89b-12d3-a456-426614174002',
+        categoria: 'Category 1',
+        created_at: new Date(),
+        updated_at: new Date(),
+        is_deleted: false,
+        productos: [] as Funko[],
+      },
+    ];
+    it('FindAll', async () => {
+      jest.spyOn(service, 'findAll').mockResolvedValue(mockCategories);
+
+      const result = await controller.findAll();
+
+      expect(service.findAll).toHaveBeenCalled();
+      expect(result).toEqual(mockCategories);
+    });
+  });
+
+  describe('findOne', () => {
+    it('Devuelve categoria', async () => {
+      const id = 'uuid';
+      const mockResult: Categoria = new Categoria();
+
+      jest.spyOn(service, 'findOne').mockResolvedValue(mockResult);
+      await controller.findOne(id);
+      expect(service.findOne).toHaveBeenCalledWith(id);
+      expect(mockResult).toBeInstanceOf(Categoria);
+    });
+
+    it('Devuelve notfound', async () => {
+      const id = 'a uuid';
+      jest.spyOn(service, 'findOne').mockRejectedValue(new NotFoundException());
+      await expect(controller.findOne(id)).rejects.toThrow(NotFoundException);
+    });
+  });
+  describe('create', () => {
+    it('Crea categoria', async () => {
+      const dto: CreateCategoriaDto = {
+        categoria: 'test',
+      };
+      const mockResult: Categoria = new Categoria();
+      jest.spyOn(service, 'create').mockResolvedValue(mockResult);
+      await controller.create(dto);
+      expect(service.create).toHaveBeenCalledWith(dto);
+    });
+  });
+  describe('update', () => {
+    it('Devuelve categoria', async () => {
+      const id = 'a uuid';
+      const dto: UpdateCategoriaDto = {
+        categoria: 'test',
+        is_deleted: true,
+      };
+      const mockResult: Categoria = new Categoria();
+      jest.spyOn(service, 'update').mockResolvedValue(mockResult);
+      await controller.update(id, dto);
+      expect(service.update).toHaveBeenCalledWith(id, dto);
+      expect(mockResult).toBeInstanceOf(Categoria);
+    });
+
+    it('Devuelve NotFound', async () => {
+      const id = 'a uuid';
+      const dto: UpdateCategoriaDto = {};
+      jest.spyOn(service, 'update').mockRejectedValue(new NotFoundException());
+      await expect(controller.update(id, dto)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+  describe('remove', () => {
+    it('Categoria eliminada', async () => {
+      const id = 'a uuid';
+      const mockResult: Categoria = new Categoria();
+      jest.spyOn(service, 'removeSoft').mockResolvedValue(mockResult);
+      await controller.remove(id);
+      expect(service.removeSoft).toHaveBeenCalledWith(id);
+    });
+    it('Devueve NotFound', async () => {
+      const id = 'a uuid';
+      jest
+        .spyOn(service, 'removeSoft')
+        .mockRejectedValue(new NotFoundException());
+      await expect(controller.remove(id)).rejects.toThrow(NotFoundException);
+    });
   });
 });
