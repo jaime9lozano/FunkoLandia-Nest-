@@ -18,7 +18,7 @@ describe('StorageService', () => {
     expect(service).toBeDefined();
   });
   describe('findFile', () => {
-    it('should find the file', () => {
+    it('Encuentra el archivo', () => {
       const filename = 'example.jpg';
       const filePath = `${process.cwd()}\\storage-dir\\${filename}`;
 
