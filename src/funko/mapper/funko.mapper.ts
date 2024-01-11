@@ -18,9 +18,12 @@ export class FunkoMapper {
     const dto = plainToClass(ResponseFunko, funko);
     if (funko.categoria && funko.categoria.categoria) {
       dto.categoria = funko.categoria.categoria;
+      dto.categoria = dto.categoria.toLowerCase();
+      dto.nombre = dto.nombre.toLowerCase();
     } else {
       dto.categoria = null;
     }
+
     return dto;
   }
 }

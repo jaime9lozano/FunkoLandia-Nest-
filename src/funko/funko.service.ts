@@ -82,8 +82,6 @@ export class FunkoService {
   }
 
   async update(id: number, updateFunkoDto: UpdateFunkoDto) {
-    updateFunkoDto.categoria = updateFunkoDto.categoria.toLowerCase();
-    updateFunkoDto.nombre = updateFunkoDto.nombre.toLowerCase();
     this.logger.log(`Actualizando funko con id ${id}`);
     const funkoToUpdate = await this.findOne(id);
     let categoria: Categoria;
@@ -213,7 +211,10 @@ export class FunkoService {
     // Lo enviamos
     this.funkoNotificationGateway.sendMessage(notificacion);
   }
-  public async invalidateKey(key: string) {
-    await this.cacheManager.del(key);
+  public async invalidateKey(keyPattern: string) {
+    const cacheKeys = await this.cacheManager.store.keys();
+    const keysToDelete = cacheKeys.filter((key) => key.startsWith(keyPattern));
+    const promises = keysToDelete.map((key) => this.cacheManager.del(key));
+    await Promise.all(promises);
   }
 }
