@@ -67,12 +67,6 @@ export class FunkoController {
     this.logger.log(`Eliminando funko con id ${id}`);
     return await this.funkoService.removeSoft(id);
   }
-  @Delete('eliminar/:id')
-  @HttpCode(204)
-  async remove2(@Param('id', ParseIntPipe) id: number) {
-    this.logger.log(`Eliminando funko con id ${id}`);
-    return await this.funkoService.remove(id);
-  }
   @Patch('/imagen/:id')
   @UseGuards(funkoExistGuard)
   @UseInterceptors(
