@@ -12,6 +12,13 @@ import { Repository } from 'typeorm';
 import { CategoriasMapper } from './mapper/categoria.mapper';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { hash } from 'typeorm/util/StringUtils';
+import {
+  FilterOperator,
+  FilterSuffix,
+  paginate,
+  PaginateQuery,
+} from 'nestjs-paginate';
 
 @Injectable()
 export class CategoriaService {
@@ -21,13 +28,27 @@ export class CategoriaService {
     private readonly categoriasMapper: CategoriasMapper,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
-  async findAll() {
-    const cache: Categoria[] = await this.cacheManager.get('all_categorias');
+  async findAll(query: PaginateQuery) {
+    const cache = await this.cacheManager.get(
+      `all_categories_page_${hash(JSON.stringify(query))}`,
+    );
     if (cache) {
       return cache;
     }
-    const res = this.categoriaRepository.find();
-    await this.cacheManager.set('all_categorias', res, 60);
+    const res = await paginate(query, this.categoriaRepository, {
+      sortableColumns: ['categoria'],
+      defaultSortBy: [['categoria', 'ASC']],
+      searchableColumns: ['categoria'],
+      filterableColumns: {
+        nombre: [FilterOperator.EQ, FilterSuffix.NOT],
+        isDeleted: [FilterOperator.EQ, FilterSuffix.NOT],
+      },
+    });
+    await this.cacheManager.set(
+      `all_categories_page_${hash(JSON.stringify(query))}`,
+      res,
+      60,
+    );
     return res;
   }
 

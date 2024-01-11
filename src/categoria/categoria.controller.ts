@@ -14,6 +14,7 @@ import { CategoriaService } from './categoria.service';
 import { CreateCategoriaDto } from './dto/create-categoria.dto';
 import { UpdateCategoriaDto } from './dto/update-categoria.dto';
 import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
+import { Paginate, PaginateQuery } from 'nestjs-paginate';
 
 @Controller('categorias')
 @UseInterceptors(CacheInterceptor)
@@ -23,8 +24,8 @@ export class CategoriaController {
   @Get()
   @CacheKey('all_categories')
   @CacheTTL(30)
-  async findAll() {
-    return await this.categoriaService.findAll();
+  async findAll(@Paginate() query: PaginateQuery) {
+    return await this.categoriaService.findAll(query);
   }
 
   @Get(':id')

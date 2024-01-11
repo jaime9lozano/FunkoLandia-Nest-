@@ -22,6 +22,13 @@ import {
 import { ResponseFunko } from './dto/response-funko.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import {
+  FilterOperator,
+  FilterSuffix,
+  paginate,
+  PaginateQuery,
+} from 'nestjs-paginate';
+import { hash } from 'typeorm/util/StringUtils';
 
 @Injectable()
 export class FunkoService {
@@ -36,15 +43,43 @@ export class FunkoService {
     private readonly funkoNotificationGateway: FunkoNotificationsGateway,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
-  async findAll() {
+  async findAll(query: PaginateQuery) {
     this.logger.log('Buscando todos los funkos');
-    const cache: Funko[] = await this.cacheManager.get('all_funkos');
+    const cache = await this.cacheManager.get(
+      `all_funkos_page_${hash(JSON.stringify(query))}`,
+    );
     if (cache) {
       this.logger.log('Buscando todos los funkos en cache');
       return cache;
     }
-    const res = this.funkoRepository.find();
-    await this.cacheManager.set('all_funkos', res, 60);
+
+    const queryBuilder = this.funkoRepository
+      .createQueryBuilder('producto')
+      .leftJoinAndSelect('producto.categoria', 'categoria');
+    const pagination = await paginate(query, queryBuilder, {
+      sortableColumns: ['nombre', 'imagen', 'precio', 'cantidad'],
+      defaultSortBy: [['id', 'ASC']],
+      searchableColumns: ['nombre', 'imagen', 'precio', 'cantidad'],
+      filterableColumns: {
+        nombre: [FilterOperator.EQ, FilterSuffix.NOT],
+        imagen: [FilterOperator.EQ, FilterSuffix.NOT],
+        precio: true,
+        cantidad: true,
+        is_deleted: [FilterOperator.EQ, FilterSuffix.NOT],
+      },
+    });
+    const res = {
+      data: (pagination.data ?? []).map((funko) =>
+        this.mapper.toResponse(funko),
+      ),
+      meta: pagination.meta,
+      links: pagination.links,
+    };
+    await this.cacheManager.set(
+      `all_funkos_page_${hash(JSON.stringify(query))}`,
+      res,
+      60,
+    );
     return res;
   }
 
@@ -180,21 +215,6 @@ export class FunkoService {
 
     if (!file) {
       throw new BadRequestException('Fichero no encontrado.');
-    }
-
-    let filePath: string;
-
-    if (withUrl) {
-      this.logger.log(`Generando url para ${file.filename}`);
-      // Construimos la url del fichero, que será la url de la API + el nombre del fichero
-      const apiVersion = process.env.API_VERSION
-        ? `/${process.env.API_VERSION}`
-        : '';
-      filePath = `${req.protocol}://${req.get('host')}/v1/storage/${
-        file.filename
-      }`;
-    } else {
-      filePath = file.filename;
     }
 
     funkoToUpdate.imagen = file.filename;
