@@ -57,7 +57,7 @@ describe('CategoriasController (e2e)', () => {
     await app.close();
   });
   describe('GET /categorias', () => {
-    it('Devuelve findAll', async () => {
+    it('Devuelve Page findAll', async () => {
       mockCategoriasService.findAll.mockResolvedValue([myCategoria]);
 
       const { body } = await request(app.getHttpServer())
@@ -68,123 +68,136 @@ describe('CategoriasController (e2e)', () => {
         expect(mockCategoriasService.findAll).toHaveBeenCalled();
       });
     });
-  });
-  describe('GET /categorias/:id', () => {
-    it('Devuelve findOne', async () => {
-      mockCategoriasService.findOne.mockResolvedValue(myCategoria);
+    it('Devuelve Page findAll con query', async () => {
+      mockCategoriasService.findAll.mockResolvedValue([myCategoria]);
 
       const { body } = await request(app.getHttpServer())
-        .get(`${myEndpoint}/${myCategoria.id}`)
+        .get('${myEndpoint}?limit=10&page=1')
         .expect(200);
       expect(() => {
-        expect(body).toEqual(myCategoria);
-        expect(mockCategoriasService.findOne).toHaveBeenCalled();
+        expect(body).toEqual([myCategoria]);
+        expect(mockCategoriasService.findAll).toHaveBeenCalled();
       });
     });
+    describe('GET /categorias/:id', () => {
+      it('Devuelve findOne', async () => {
+        mockCategoriasService.findOne.mockResolvedValue(myCategoria);
 
-    it('Devuelve notfound', async () => {
-      mockCategoriasService.findOne.mockRejectedValue(new NotFoundException());
+        const { body } = await request(app.getHttpServer())
+          .get(`${myEndpoint}/${myCategoria.id}`)
+          .expect(200);
+        expect(() => {
+          expect(body).toEqual(myCategoria);
+          expect(mockCategoriasService.findOne).toHaveBeenCalled();
+        });
+      });
 
-      await request(app.getHttpServer())
-        .get(`${myEndpoint}/${myCategoria.id}`)
-        .expect(404);
-    });
-  });
-  describe('POST /categorias', () => {
-    it('Devuelve categoria creada', async () => {
-      mockCategoriasService.create.mockResolvedValue(myCategoria);
-
-      const { body } = await request(app.getHttpServer())
-        .post(myEndpoint)
-        .send(createCategoriaDto)
-        .expect(201);
-      expect(() => {
-        expect(body).toEqual(myCategoria);
-        expect(mockCategoriasService.create).toHaveBeenCalledWith(
-          createCategoriaDto,
+      it('Devuelve notfound', async () => {
+        mockCategoriasService.findOne.mockRejectedValue(
+          new NotFoundException(),
         );
+
+        await request(app.getHttpServer())
+          .get(`${myEndpoint}/${myCategoria.id}`)
+          .expect(404);
       });
     });
-    it('Devuelve BadRequest', async () => {
-      const errorMessage = 'El nombre de la categoría ya existe';
-      mockCategoriasService.create.mockRejectedValue(
-        new BadRequestException(errorMessage),
-      );
+    describe('POST /categorias', () => {
+      it('Devuelve categoria creada', async () => {
+        mockCategoriasService.create.mockResolvedValue(myCategoria);
 
-      const { body } = await request(app.getHttpServer())
-        .post(myEndpoint)
-        .send(createCategoriaDto)
-        .expect(400);
-
-      expect(() => {
-        expect(body).toEqual({ message: errorMessage, statusCode: 400 });
-        expect(mockCategoriasService.create).toHaveBeenCalledWith(
-          createCategoriaDto,
+        const { body } = await request(app.getHttpServer())
+          .post(myEndpoint)
+          .send(createCategoriaDto)
+          .expect(201);
+        expect(() => {
+          expect(body).toEqual(myCategoria);
+          expect(mockCategoriasService.create).toHaveBeenCalledWith(
+            createCategoriaDto,
+          );
+        });
+      });
+      it('Devuelve BadRequest', async () => {
+        const errorMessage = 'El nombre de la categoría ya existe';
+        mockCategoriasService.create.mockRejectedValue(
+          new BadRequestException(errorMessage),
         );
+
+        const { body } = await request(app.getHttpServer())
+          .post(myEndpoint)
+          .send(createCategoriaDto)
+          .expect(400);
+
+        expect(() => {
+          expect(body).toEqual({ message: errorMessage, statusCode: 400 });
+          expect(mockCategoriasService.create).toHaveBeenCalledWith(
+            createCategoriaDto,
+          );
+        });
       });
     });
-  });
-  describe('PUT /categorias/:id', () => {
-    it('Devuelve categoria actualizada', async () => {
-      mockCategoriasService.update.mockResolvedValue(myCategoria);
+    describe('PUT /categorias/:id', () => {
+      it('Devuelve categoria actualizada', async () => {
+        mockCategoriasService.update.mockResolvedValue(myCategoria);
 
-      const { body } = await request(app.getHttpServer())
-        .put(`${myEndpoint}/${myCategoria.id}`)
-        .send(updateCategoriaDto)
-        .expect(200);
-      expect(() => {
-        expect(body).toEqual(myCategoria);
-        expect(mockCategoriasService.update).toHaveBeenCalledWith(
-          myCategoria.id,
-          updateCategoriaDto,
+        const { body } = await request(app.getHttpServer())
+          .put(`${myEndpoint}/${myCategoria.id}`)
+          .send(updateCategoriaDto)
+          .expect(200);
+        expect(() => {
+          expect(body).toEqual(myCategoria);
+          expect(mockCategoriasService.update).toHaveBeenCalledWith(
+            myCategoria.id,
+            updateCategoriaDto,
+          );
+        });
+      });
+
+      it('Devuelve BadRequest', async () => {
+        const errorMessage = 'Error al actualizar la categoría';
+        mockCategoriasService.update.mockRejectedValue(
+          new BadRequestException(errorMessage),
         );
+
+        const { body } = await request(app.getHttpServer())
+          .put(`${myEndpoint}/${myCategoria.id}`)
+          .send(updateCategoriaDto)
+          .expect(400);
+
+        expect(() => {
+          expect(body).toEqual({ message: errorMessage, statusCode: 400 });
+          expect(mockCategoriasService.update).toHaveBeenCalledWith(
+            myCategoria.id,
+            updateCategoriaDto,
+          );
+        });
+      });
+
+      it('Devuelve NotFound', async () => {
+        mockCategoriasService.update.mockRejectedValue(new NotFoundException());
+        await request(app.getHttpServer())
+          .put(`${myEndpoint}/${myCategoria.id}`)
+          .send(updateCategoriaDto)
+          .expect(404);
       });
     });
+    describe('DELETE /categorias/:id', () => {
+      it('Elimina categoria', async () => {
+        mockCategoriasService.remove.mockResolvedValue(myCategoria);
 
-    it('Devuelve BadRequest', async () => {
-      const errorMessage = 'Error al actualizar la categoría';
-      mockCategoriasService.update.mockRejectedValue(
-        new BadRequestException(errorMessage),
-      );
+        await request(app.getHttpServer())
+          .delete(`${myEndpoint}/${myCategoria.id}`)
+          .expect(204);
+      });
 
-      const { body } = await request(app.getHttpServer())
-        .put(`${myEndpoint}/${myCategoria.id}`)
-        .send(updateCategoriaDto)
-        .expect(400);
-
-      expect(() => {
-        expect(body).toEqual({ message: errorMessage, statusCode: 400 });
-        expect(mockCategoriasService.update).toHaveBeenCalledWith(
-          myCategoria.id,
-          updateCategoriaDto,
+      it('Devuelve NotFound', async () => {
+        mockCategoriasService.removeSoft.mockRejectedValue(
+          new NotFoundException(),
         );
+        await request(app.getHttpServer())
+          .delete(`${myEndpoint}/${myCategoria.id}`)
+          .expect(404);
       });
-    });
-
-    it('Devuelve NotFound', async () => {
-      mockCategoriasService.update.mockRejectedValue(new NotFoundException());
-      await request(app.getHttpServer())
-        .put(`${myEndpoint}/${myCategoria.id}`)
-        .send(updateCategoriaDto)
-        .expect(404);
-    });
-  });
-  describe('DELETE /categorias/:id', () => {
-    it('Elimina categoria', async () => {
-      mockCategoriasService.remove.mockResolvedValue(myCategoria);
-
-      await request(app.getHttpServer())
-        .delete(`${myEndpoint}/${myCategoria.id}`)
-        .expect(204);
-    });
-
-    it('Devuelve NotFound', async () => {
-      mockCategoriasService.removeSoft.mockRejectedValue(
-        new NotFoundException(),
-      );
-      await request(app.getHttpServer())
-        .delete(`${myEndpoint}/${myCategoria.id}`)
-        .expect(404);
     });
   });
 });

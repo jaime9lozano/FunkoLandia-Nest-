@@ -10,6 +10,8 @@ import { Funko } from '../funko/entities/funko.entity';
 import { BadRequestException } from '@nestjs/common';
 import { CreateCategoriaDto } from './dto/create-categoria.dto';
 import { UpdateCategoriaDto } from './dto/update-categoria.dto';
+import { Paginated } from 'nestjs-paginate';
+import { hash } from 'typeorm/util/StringUtils';
 
 describe('CategoriasService', () => {
   let service: CategoriaService;
@@ -59,44 +61,93 @@ describe('CategoriasService', () => {
   });
   describe('findAll', () => {
     it('Devolvera FindAll del repositorio', async () => {
-      const mockCategories = [
-        {
-          id: '123e4567-e89b-12d3-a456-426614174002',
-          categoria: 'Category 1',
-          created_at: new Date(),
-          updated_at: new Date(),
-          is_deleted: false,
-          productos: [] as Funko[],
-        },
-      ];
-      jest.spyOn(cacheManager, 'get').mockResolvedValue(Promise.resolve(null));
-      const repoFind = jest
-        .spyOn(repo, 'find')
-        .mockResolvedValue(mockCategories);
-      //jest.spyOn(cacheManager, 'set').mockResolvedValue();
-      const result = await service.findAll();
+      const paginateOptions = {
+        page: 1,
+        limit: 10,
+        path: 'categorias',
+      };
 
-      expect(cacheManager.get).toHaveBeenCalled(); // Verifica que cacheManager.get fue llamado
-      expect(repoFind).toHaveBeenCalled(); // Verifica que repo.find fue llamado
-      expect(result).toEqual(mockCategories); // Verifica que la función devuelve los datos del repositorio
+      // Mock the paginate method to return a Paginated object
+      const testCategories = {
+        data: [],
+        meta: {
+          itemsPerPage: 10,
+          totalItems: 1,
+          currentPage: 1,
+          totalPages: 1,
+        },
+        links: {
+          current: 'categorias?page=1&limit=10&sortBy=categoria:ASC',
+        },
+      } as Paginated<Categoria>;
+
+      jest.spyOn(cacheManager, 'get').mockResolvedValue(Promise.resolve(null));
+
+      // Mock the cacheManager.set method
+      jest.spyOn(cacheManager, 'set').mockResolvedValue();
+
+      // Debemos simular la consulta
+      const mockQueryBuilder = {
+        take: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        addOrderBy: jest.fn().mockReturnThis(),
+        getManyAndCount: jest.fn().mockResolvedValue([testCategories, 1]),
+      };
+
+      jest
+        .spyOn(repo, 'createQueryBuilder')
+        .mockReturnValue(mockQueryBuilder as any);
+
+      // Call the findAll method
+      const result: any = await service.findAll(paginateOptions);
+
+      // console.log(result)
+      expect(result.meta.itemsPerPage).toEqual(paginateOptions.limit);
+      // Expect the result to have the correct currentPage
+      expect(result.meta.currentPage).toEqual(paginateOptions.page);
+      // Expect the result to have the correct totalPages
+      expect(result.meta.totalPages).toEqual(1); // You may need to adjust this value based on your test case
+      // Expect the result to have the correct current link
+      expect(result.links.current).toEqual(
+        `categorias?page=${paginateOptions.page}&limit=${paginateOptions.limit}&sortBy=categoria:ASC`,
+      );
+      expect(cacheManager.get).toHaveBeenCalled();
+      expect(cacheManager.set).toHaveBeenCalled();
     });
     it('Devolvera FindAll del cache', async () => {
-      const mockCategories = [
-        {
-          id: '123e4567-e89b-12d3-a456-426614174002',
-          categoria: 'Category 1',
-          created_at: new Date(),
-          updated_at: new Date(),
-          is_deleted: false,
-          productos: [] as Funko[],
+      const paginateOptions = {
+        page: 1,
+        limit: 10,
+        path: 'categorias',
+      };
+
+      // Mock the paginate method to return a Paginated object
+      const testCategories = {
+        data: [],
+        meta: {
+          itemsPerPage: 10,
+          totalItems: 1,
+          currentPage: 1,
+          totalPages: 1,
         },
-      ];
-      jest.spyOn(cacheManager, 'get').mockResolvedValue(mockCategories);
+        links: {
+          current: 'categorias?page=1&limit=10&sortBy=nombre:ASC',
+        },
+      } as Paginated<Categoria>;
 
-      const result = await service.findAll();
+      // Mock the cacheManager.get method to return a cached result
+      jest.spyOn(cacheManager, 'get').mockResolvedValue(testCategories);
 
-      expect(cacheManager.get).toHaveBeenCalledWith('all_categorias');
-      expect(result).toEqual(mockCategories);
+      // Call the findAll method
+      const result = await service.findAll(paginateOptions);
+
+      // Expect the cacheManager.get method to be called with the correct key
+      expect(cacheManager.get).toHaveBeenCalledWith(
+        `all_categories_page_${hash(JSON.stringify(paginateOptions))}`,
+      );
+
+      // Expect the result to be the cached result
+      expect(result).toEqual(testCategories);
     });
   });
 

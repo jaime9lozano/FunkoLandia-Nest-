@@ -7,6 +7,7 @@ import { Categoria } from './entities/categoria.entity';
 import { NotFoundException } from '@nestjs/common';
 import { CreateCategoriaDto } from './dto/create-categoria.dto';
 import { UpdateCategoriaDto } from './dto/update-categoria.dto';
+import { Paginated } from 'nestjs-paginate';
 
 describe('CategoriaController', () => {
   let controller: CategoriaController;
@@ -36,23 +37,39 @@ describe('CategoriaController', () => {
     expect(controller).toBeDefined();
   });
   describe('findAll', () => {
-    const mockCategories = [
-      {
-        id: '123e4567-e89b-12d3-a456-426614174002',
-        categoria: 'Category 1',
-        created_at: new Date(),
-        updated_at: new Date(),
-        is_deleted: false,
-        productos: [] as Funko[],
-      },
-    ];
     it('FindAll', async () => {
-      jest.spyOn(service, 'findAll').mockResolvedValue(mockCategories);
+      const paginateOptions = {
+        page: 1,
+        limit: 10,
+        path: 'categorias',
+      };
 
-      const result = await controller.findAll();
+      const testCategories = {
+        data: [],
+        meta: {
+          itemsPerPage: 10,
+          totalItems: 1,
+          currentPage: 1,
+          totalPages: 1,
+        },
+        links: {
+          current: 'categorias?page=1&limit=10&sortBy=categoria:ASC',
+        },
+      } as Paginated<Categoria>;
+      jest.spyOn(service, 'findAll').mockResolvedValue(testCategories);
+      const result: any = await controller.findAll(paginateOptions);
 
+      // console.log(result)
+      expect(result.meta.itemsPerPage).toEqual(paginateOptions.limit);
+      // Expect the result to have the correct currentPage
+      expect(result.meta.currentPage).toEqual(paginateOptions.page);
+      // Expect the result to have the correct totalPages
+      expect(result.meta.totalPages).toEqual(1); // You may need to adjust this value based on your test case
+      // Expect the result to have the correct current link
+      expect(result.links.current).toEqual(
+        `categorias?page=${paginateOptions.page}&limit=${paginateOptions.limit}&sortBy=categoria:ASC`,
+      );
       expect(service.findAll).toHaveBeenCalled();
-      expect(result).toEqual(mockCategories);
     });
   });
 
