@@ -199,7 +199,9 @@ export class FunkoService {
 
     funkoToUpdate.imagen = filePath;
     const funkoUpdated = await this.funkoRepository.save(funkoToUpdate);
-    return this.mapper.toResponse(funkoUpdated);
+    const res = this.mapper.toResponse(funkoUpdated);
+    this.onChange(NotificacionTipo.UPDATE, res);
+    return res;
   }
   private onChange(tipo: NotificacionTipo, data: ResponseFunko) {
     const notificacion = new Notificacion<ResponseFunko>(
