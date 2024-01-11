@@ -72,7 +72,7 @@ describe('CategoriasController (e2e)', () => {
       mockCategoriasService.findAll.mockResolvedValue([myCategoria]);
 
       const { body } = await request(app.getHttpServer())
-        .get('${myEndpoint}?limit=10&page=1')
+        .get(`${myEndpoint}?page=1&limit=10`)
         .expect(200);
       expect(() => {
         expect(body).toEqual([myCategoria]);
