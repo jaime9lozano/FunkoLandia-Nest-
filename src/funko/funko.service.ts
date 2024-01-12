@@ -54,8 +54,8 @@ export class FunkoService {
     }
 
     const queryBuilder = this.funkoRepository
-      .createQueryBuilder('producto')
-      .leftJoinAndSelect('producto.categoria', 'categoria');
+      .createQueryBuilder('funko')
+      .leftJoinAndSelect('funko.categoria', 'categoria');
     const pagination = await paginate(query, queryBuilder, {
       sortableColumns: ['nombre', 'imagen', 'precio', 'cantidad'],
       defaultSortBy: [['id', 'ASC']],
