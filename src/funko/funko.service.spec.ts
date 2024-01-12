@@ -16,6 +16,10 @@ import { UpdateFunkoDto } from './dto/update-funko.dto';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Paginated } from 'nestjs-paginate';
 import { hash } from 'typeorm/util/StringUtils';
+import {
+  Notificacion,
+  NotificacionTipo,
+} from '../websocket/models/notificacion.model';
 
 describe('FunkoService', () => {
   let service: FunkoService; // servicio
@@ -368,6 +372,28 @@ describe('FunkoService', () => {
 
       expect(storageService.removeFile).toHaveBeenCalled();
       expect(storageService.getFileNameWithouUrl).toHaveBeenCalled();
+    });
+  });
+  describe('onChange', () => {
+    it('Devuelve Notificacion', () => {
+      // Arrange
+      const tipo: NotificacionTipo = NotificacionTipo.UPDATE;
+      const data: ResponseFunko = new ResponseFunko();
+
+      const notificacionMock = new Notificacion<ResponseFunko>(
+        'FUNKOS',
+        tipo,
+        data,
+        expect.any(Date),
+      );
+
+      // Act
+      service.onChange(tipo, data);
+
+      // Assert
+      expect(funkoNotificationsGatewayMock.sendMessage).toHaveBeenCalledWith(
+        notificacionMock,
+      );
     });
   });
 });

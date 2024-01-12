@@ -223,7 +223,7 @@ export class FunkoService {
     this.onChange(NotificacionTipo.UPDATE, res);
     return res;
   }
-  private onChange(tipo: NotificacionTipo, data: ResponseFunko) {
+  onChange(tipo: NotificacionTipo, data: ResponseFunko) {
     const notificacion = new Notificacion<ResponseFunko>(
       'FUNKOS',
       tipo,
