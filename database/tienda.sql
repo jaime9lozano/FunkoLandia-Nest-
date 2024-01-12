@@ -30,7 +30,7 @@ INSERT INTO "categorias" ("id", "categoria", "created_at", "updated_at", "is_del
 VALUES
     ('d69cf3db-b77d-4181-b3cd-5ca8107fb6a9', 'disney', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
     ('6dbcbf5e-8e1c-47cc-8578-7b0a33ebc154', 'marvel', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
-    ('9def16db-362b-44c4-9fc9-77117758b5b0', 'superhéroe', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+    ('9def16db-362b-44c4-9fc9-77117758b5b0', 'superheroe', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
     ('8c5c06ba-49d6-46b6-85cc-8246c0f362bc', 'otros', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
 
 -- Inserción de Funkos en cada categoría

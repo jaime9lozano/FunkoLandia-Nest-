@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CategoriaController } from './categoria.controller';
 import { CategoriaService } from './categoria.service';
 import { CacheModule } from '@nestjs/cache-manager';
-import { Funko } from '../funko/entities/funko.entity';
 import { Categoria } from './entities/categoria.entity';
 import { NotFoundException } from '@nestjs/common';
 import { CreateCategoriaDto } from './dto/create-categoria.dto';
