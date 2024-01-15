@@ -116,11 +116,7 @@ describe('FunkoService', () => {
       // console.log(result)
 
       expect(result.meta.itemsPerPage).toEqual(paginateOptions.limit);
-      // Expect the result to have the correct currentPage
       expect(result.meta.currentPage).toEqual(paginateOptions.page);
-      // Expect the result to have the correct totalPages
-      // expect(result.meta.totalPages).toEqual(1) // You may need to adjust this value based on your test case
-      // Expect the result to have the correct current link
       expect(result.links.current).toEqual(
         `funkos?page=${paginateOptions.page}&limit=${paginateOptions.limit}&sortBy=id:ASC`,
       );

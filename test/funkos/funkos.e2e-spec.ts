@@ -86,7 +86,7 @@ describe('ProductosController (e2e)', () => {
   });
   describe('GET /funkos', () => {
     it('Devuelve FindAll Page', async () => {
-      mockFunkosService.findAll.mockResolvedValue([myFunko]);
+      mockFunkosService.findAll.mockResolvedValue([myFunkoResponse]);
 
       const { body } = await request(app.getHttpServer())
         .get(myEndpoint)
@@ -97,7 +97,7 @@ describe('ProductosController (e2e)', () => {
       });
     });
     it('Devuelve FindAll Page con query', async () => {
-      mockFunkosService.findAll.mockResolvedValue([myFunko]);
+      mockFunkosService.findAll.mockResolvedValue([myFunkoResponse]);
 
       const { body } = await request(app.getHttpServer())
         .get(`${myEndpoint}?page=1&limit=10`)
