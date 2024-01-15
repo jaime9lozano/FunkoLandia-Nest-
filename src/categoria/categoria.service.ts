@@ -40,8 +40,8 @@ export class CategoriaService {
       defaultSortBy: [['categoria', 'ASC']],
       searchableColumns: ['categoria'],
       filterableColumns: {
-        nombre: [FilterOperator.EQ, FilterSuffix.NOT],
-        isDeleted: [FilterOperator.EQ, FilterSuffix.NOT],
+        categoria: [FilterOperator.EQ, FilterSuffix.NOT],
+        is_deleted: [FilterOperator.EQ, FilterSuffix.NOT],
       },
     });
     await this.cacheManager.set(
