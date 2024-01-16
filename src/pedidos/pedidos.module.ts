@@ -8,6 +8,7 @@ import { Pedido } from './schema/pedido.schema';
 import { MongooseModule, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
 import { PedidosMapper } from './mappers/pedidos.mapper';
+import { Usuario } from '../users/entities/user.entity';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { PedidosMapper } from './mappers/pedidos.mapper';
       },
     ]),
     TypeOrmModule.forFeature([Funko]),
+    TypeOrmModule.forFeature([Usuario]),
     CacheModule.register(),
   ],
   controllers: [PedidosController],

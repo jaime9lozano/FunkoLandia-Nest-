@@ -13,6 +13,7 @@ import { Repository } from 'typeorm';
 import { Funko } from '../funko/entities/funko.entity';
 import { PedidosMapper } from './mappers/pedidos.mapper';
 import { Pedido, PedidoDocument } from './schema/pedido.schema';
+import { Usuario } from '../users/entities/user.entity';
 
 export const PedidosOrderByValues: string[] = ['_id', 'idUsuario']; // Lo usamos en los pipes
 export const PedidosOrderValues: string[] = ['asc', 'desc']; // Lo usamos en los pipes
@@ -25,6 +26,8 @@ export class PedidosService {
     private pedidosRepository: PaginateModel<PedidoDocument>,
     @InjectRepository(Funko)
     private readonly funkosRepository: Repository<Funko>,
+    @InjectRepository(Usuario)
+    private readonly usuariosRepository: Repository<Usuario>,
     private readonly pedidosMapper: PedidosMapper,
   ) {}
   async findAll(page: number, limit: number, orderBy: string, order: string) {
@@ -181,5 +184,10 @@ export class PedidosService {
       }
     }
     return pedido;
+  }
+  async userExists(idUsuario: number): Promise<boolean> {
+    this.logger.log(`Comprobando si existe el usuario ${idUsuario}`);
+    const usuario = await this.usuariosRepository.findOneBy({ id: idUsuario });
+    return !!usuario;
   }
 }
