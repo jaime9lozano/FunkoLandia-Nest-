@@ -1,7 +1,5 @@
 import { INestApplication, NotFoundException } from '@nestjs/common';
 import { ResponseFunko } from '../../src/funko/dto/response-funko.dto';
-import { Funko } from '../../src/funko/entities/funko.entity';
-import { Categoria } from '../../src/categoria/entities/categoria.entity';
 import { CreateFunkoDto } from '../../src/funko/dto/create-funko.dto';
 import { UpdateFunkoDto } from '../../src/funko/dto/update-funko.dto';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -23,25 +21,6 @@ describe('ProductosController (e2e)', () => {
     updated_at: new Date(),
     is_deleted: false,
     categoria: 'categoria-test',
-  };
-  const myCategoria: Categoria = {
-    id: '123e4567-e89b-12d3-a456-426614174002',
-    categoria: 'Category-test',
-    created_at: new Date(),
-    updated_at: new Date(),
-    is_deleted: false,
-    productos: [] as Funko[],
-  };
-  const myFunko: Funko = {
-    id: 1,
-    nombre: 'funko-test',
-    precio: 100,
-    cantidad: 10,
-    imagen: 'imagen-test',
-    created_at: new Date(),
-    updated_at: new Date(),
-    is_deleted: false,
-    categoria: myCategoria,
   };
   const createFunkoDto: CreateFunkoDto = {
     nombre: 'funko-test2',
@@ -92,7 +71,7 @@ describe('ProductosController (e2e)', () => {
         .get(myEndpoint)
         .expect(200);
       expect(() => {
-        expect(body).toEqual([myFunko]);
+        expect(body).toEqual([myFunkoResponse]);
         expect(mockFunkosService.findAll).toHaveBeenCalled();
       });
     });
@@ -103,7 +82,7 @@ describe('ProductosController (e2e)', () => {
         .get(`${myEndpoint}?page=1&limit=10`)
         .expect(200);
       expect(() => {
-        expect(body).toEqual([myFunko]);
+        expect(body).toEqual([myFunkoResponse]);
         expect(mockFunkosService.findAll).toHaveBeenCalled();
       });
     });
