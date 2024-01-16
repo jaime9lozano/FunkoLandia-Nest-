@@ -52,7 +52,7 @@ services:
     container_name: tienda-db_mongo-express-db
     image: mongo-express
     restart: always
-    env_file: .env.prod
+    env_file: .env
     ports:
       - 8081:8081
     environment:

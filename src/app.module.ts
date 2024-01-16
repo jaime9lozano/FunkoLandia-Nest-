@@ -28,11 +28,7 @@ import { PedidosModule } from './pedidos/pedidos.module';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async () => ({
-        uri: `mongodb://${process.env.DATABASE_USER}:${
-          process.env.DATABASE_PASSWORD
-        }@${process.env.MONGO_HOST}:${process.env.MONGO_PORT || 27017}/${
-          process.env.MONGO_DATABASE
-        }`,
+        uri: `mongodb://admin:adminPassword123@localhost:27017/tienda`,
       }),
     }),
     FunkoModule,

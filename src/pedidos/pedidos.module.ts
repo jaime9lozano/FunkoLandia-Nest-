@@ -7,6 +7,7 @@ import { Funko } from '../funko/entities/funko.entity';
 import { Pedido } from './schema/pedido.schema';
 import { MongooseModule, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
+import { PedidosMapper } from './mappers/pedidos.mapper';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import * as mongoosePaginate from 'mongoose-paginate-v2';
     CacheModule.register(),
   ],
   controllers: [PedidosController],
-  providers: [PedidosService],
+  providers: [PedidosService, PedidosMapper],
   exports: [PedidosService],
 })
 export class PedidosModule {}
