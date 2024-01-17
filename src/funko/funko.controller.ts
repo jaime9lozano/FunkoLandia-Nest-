@@ -26,6 +26,8 @@ import { diskStorage } from 'multer';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
+import { Roles, RolesAuthGuard } from '../auth/guards/roles-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('funkos')
 @UseInterceptors(CacheInterceptor)
@@ -47,6 +49,8 @@ export class FunkoController {
     return await this.funkoService.findOne(id);
   }
   @Post()
+  @UseGuards(JwtAuthGuard, RolesAuthGuard)
+  @Roles('ADMIN')
   @HttpCode(201)
   async create(@Body() createFunkoDto: CreateFunkoDto) {
     this.logger.log('Creando un nuevo funko');
@@ -54,6 +58,8 @@ export class FunkoController {
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard, RolesAuthGuard)
+  @Roles('ADMIN')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateFunkoDto: UpdateFunkoDto,
@@ -63,12 +69,16 @@ export class FunkoController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesAuthGuard)
+  @Roles('ADMIN')
   @HttpCode(204)
   async remove(@Param('id', ParseIntPipe) id: number) {
     this.logger.log(`Eliminando funko con id ${id}`);
     return await this.funkoService.removeSoft(id);
   }
   @Patch('/imagen/:id')
+  @UseGuards(JwtAuthGuard, RolesAuthGuard)
+  @Roles('ADMIN')
   @UseGuards(funkoExistGuard)
   @UseInterceptors(
     FileInterceptor('file', {

@@ -11,6 +11,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
@@ -20,13 +21,17 @@ import { PedidosService } from './pedidos.service';
 import { OrderValidatePipe } from './pipes/order-validate.pipe';
 import { IdValidatePipe } from './pipes/id-validate.pipe';
 import { CacheInterceptor } from '@nestjs/cache-manager';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Roles, RolesAuthGuard } from '../auth/guards/roles-auth.guard';
 
 @Controller('pedidos')
 @UseInterceptors(CacheInterceptor)
+@UseGuards(JwtAuthGuard, RolesAuthGuard)
 export class PedidosController {
   private readonly logger = new Logger(PedidosController.name);
   constructor(private readonly pedidosService: PedidosService) {}
   @Get()
+  @Roles('ADMIN')
   async findAll(
     @Query('page', new DefaultValuePipe(1)) page: number = 1,
     @Query('limit', new DefaultValuePipe(20)) limit: number = 20,
@@ -46,11 +51,13 @@ export class PedidosController {
     return await this.pedidosService.findAll(page, limit, orderBy, order);
   }
   @Get(':id')
+  @Roles('ADMIN')
   async findOne(@Param('id', IdValidatePipe) id: string) {
     this.logger.log(`Buscando pedido con id ${id}`);
     return await this.pedidosService.findOne(id);
   }
   @Get('usuario/:idUsuario')
+  @Roles('ADMIN')
   async findPedidosPorUsuario(
     @Param('idUsuario', ParseIntPipe) idUsuario: number,
   ) {
@@ -59,11 +66,13 @@ export class PedidosController {
   }
   @Post()
   @HttpCode(201)
+  @Roles('ADMIN')
   async create(@Body() createPedidoDto: CreatePedidoDto) {
     this.logger.log(`Creando pedido ${JSON.stringify(createPedidoDto)}`);
     return await this.pedidosService.create(createPedidoDto);
   }
   @Put(':id')
+  @Roles('ADMIN')
   async update(
     @Param('id', IdValidatePipe) id: string,
     @Body() updatePedidoDto: UpdatePedidoDto,
@@ -74,6 +83,7 @@ export class PedidosController {
     return await this.pedidosService.update(id, updatePedidoDto);
   }
   @Delete(':id')
+  @Roles('ADMIN')
   @HttpCode(204)
   async remove(@Param('id', IdValidatePipe) id: string) {
     this.logger.log(`Eliminando pedido con id ${id}`);
