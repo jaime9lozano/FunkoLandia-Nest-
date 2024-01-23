@@ -10,6 +10,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { PedidosModule } from './pedidos/pedidos.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { CorsConfigModule } from './config/cors/cors.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { AuthModule } from './auth/auth.module';
         uri: `mongodb://admin:adminPassword123@localhost:27017/tienda`,
       }),
     }),
+    CorsConfigModule,
     FunkoModule,
     CategoriaModule,
     StorageModule,

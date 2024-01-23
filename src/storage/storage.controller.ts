@@ -15,8 +15,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { Request, Response } from 'express';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('storage')
+@ApiTags('Storage')
 export class StorageController {
   private readonly logger = new Logger(StorageController.name);
 

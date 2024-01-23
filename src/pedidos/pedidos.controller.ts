@@ -23,10 +23,12 @@ import { IdValidatePipe } from './pipes/id-validate.pipe';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles, RolesAuthGuard } from '../auth/guards/roles-auth.guard';
+import { ApiExcludeController } from '@nestjs/swagger';
 
 @Controller('pedidos')
 @UseInterceptors(CacheInterceptor)
 @UseGuards(JwtAuthGuard, RolesAuthGuard)
+@ApiExcludeController()
 export class PedidosController {
   private readonly logger = new Logger(PedidosController.name);
   constructor(private readonly pedidosService: PedidosService) {}
