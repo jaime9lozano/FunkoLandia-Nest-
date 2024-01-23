@@ -5,8 +5,15 @@ import { resolve } from 'path';
 import { readFileSync } from 'fs';
 import * as process from 'process';
 import { setupSwagger } from './config/swagger/swagger.config';
+import * as dotenv from 'dotenv';
 
+dotenv.config(); // Cargamos las variables de entorno
 async function bootstrap() {
+  if (process.env.NODE_ENV === 'dev') {
+    console.log('🛠️ Iniciando Nestjs Modo desarrollo 🛠️');
+  } else {
+    console.log('🚗 Iniciando Nestjs Modo producción 🚗');
+  }
   const keyPath = './cert/keystore.p12';
   const certPath = './cert/cert.pem';
   const httpsOptions = {
